@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/dop251/goja"
 	esbuild "github.com/evanw/esbuild/pkg/api"
-	v8 "rogchap.com/v8go"
 )
 
 // [Yaffle/TextEncoderTextDecoder.js](https://gist.github.com/Yaffle/5458286)
@@ -60,7 +60,7 @@ func buildBackend() string {
 			".jsx": esbuild.LoaderJSX,
 		},
 	})
-	script := fmt.Sprintf("%s", result.OutputFiles[0].Contents)
+	script := string(result.OutputFiles[0].Contents)
 	return script
 }
 
@@ -75,33 +75,34 @@ func buildClient() string {
 }
 
 func main() {
-	// reactをSSRするためのバンドルを作成
+	// Create a bundle for SSR in react
 	backendBundle := buildBackend()
-	// reactをhydrateするためのバンドルを作成
+	// Create a bundle for react hydrate
 	clientBundle := buildClient()
 
-	ctx := v8.NewContext(nil)
-	_, err := ctx.RunScript(backendBundle, "bundle.js")
+	vm := goja.New()
+	_, err := vm.RunScript("bundle.js", backendBundle)
 	if err != nil {
 		log.Fatalf("Failed to evaluate bundled script: %v", err)
 	}
-	val, err := ctx.RunScript("renderApp()", "render.js")
+	val, err := vm.RunScript("render.js", "renderApp()")
 	if err != nil {
 		log.Fatalf("Failed to render React component: %v", err)
 	}
-	renderedHTML := val.String()
 
+	renderedHTML := val.String()
 	tmpl, err := template.New("webpage").Parse(htmlTemplate)
 	if err != nil {
 		log.Fatal("Error parsing template:", err)
 	}
 
-	// backendから渡すprops
+	// Props passed from the backend
 	initialProps := InitialProps{
-		Name:          "GoでReactをSSRする",
+		Name:          "SSR for React in Go",
 		InitialNumber: 100,
 	}
-	jsonProps, err := json.Marshal(initialProps)
+
+	jsonProps, _ := json.Marshal(initialProps)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		data := PageData{
@@ -114,6 +115,7 @@ func main() {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	})
+
 	fmt.Println("Server is running at http://localhost:3002")
 	log.Fatal(http.ListenAndServe(":3002", nil))
 }

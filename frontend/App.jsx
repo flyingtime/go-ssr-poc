@@ -5,7 +5,7 @@ function App(props) {
     console.log("APP rendered", props);
     return (
         <div>
-            <h1>タイトル: {props.Name}</h1>
+            <h1>title:{props.Name}</h1>
             <Counter defaultNum={props.InitialNumber}/>
         </div>
     );
