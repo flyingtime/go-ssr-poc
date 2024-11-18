@@ -1,6 +1,6 @@
 ## SSR React using Go
 
-![](https://storage.googleapis.com/zenn-user-upload/4f86b0635c6b-20240121.gif)
+![](assets/count.jpg)
 
 ## What this is
 
