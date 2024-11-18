@@ -46,13 +46,16 @@ type InitialProps struct {
 
 func buildBackend() string {
 	result := esbuild.Build(esbuild.BuildOptions{
-		EntryPoints: []string{"./frontend/serverEntry.jsx"},
-		Bundle:      true,
-		Write:       false,
-		Outdir:      "/",
-		Format:      esbuild.FormatIIFE,
-		Platform:    esbuild.PlatformBrowser,
-		Target:      esbuild.ES2015,
+		EntryPoints:       []string{"./frontend/serverEntry.jsx"},
+		Bundle:            true,
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Write:             false,
+		Outdir:            "/",
+		Format:            esbuild.FormatIIFE,
+		Platform:          esbuild.PlatformBrowser,
+		Target:            esbuild.ES2015,
 		Banner: map[string]string{
 			"js": textEncoderPolyfill + processPolyfill + consolePolyfill,
 		},
@@ -66,9 +69,12 @@ func buildBackend() string {
 
 func buildClient() string {
 	clientResult := esbuild.Build(esbuild.BuildOptions{
-		EntryPoints: []string{"./frontend/clientEntry.jsx"},
-		Bundle:      true,
-		Write:       true,
+		EntryPoints:       []string{"./frontend/clientEntry.jsx"},
+		Bundle:            true,
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Write:             true,
 	})
 	clientBundleString := string(clientResult.OutputFiles[0].Contents)
 	return clientBundleString
