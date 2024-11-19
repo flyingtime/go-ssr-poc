@@ -11,5 +11,6 @@ just a poc for ssring react components using Go.
 run the command below and go to `http://localhost:3002`.
 
 ```
+go generate
 go run main.go
 ```
